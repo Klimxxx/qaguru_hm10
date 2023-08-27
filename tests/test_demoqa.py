@@ -1,38 +1,35 @@
-from selene import be, have, browser, command
+from selene import have, browser
 from selene.support.shared import browser
-import os
+
+from qaguru_hm10.pages.user import RegistrationPage
 
 
 def test_student_registration_form():
-    browser.open('/automation-practice-form')
-    browser.execute_script('document.querySelector(".body-height").style.transform = "scale(.5)"')
-    # Имя, Фамилия, Имейл, Пол, номер телефона
-    browser.element('[id=firstName]').should(be.blank).type('Elena')
-    browser.element('[id=lastName]').should(be.blank).type('Pirogova')
-    browser.element('[id=userEmail]').should(be.blank).type('123@123.ru')
-    browser.element('[id^=gender-radio][value=Female]+label').click()
-    browser.element('[id=userNumber]').should(be.blank).type('8987654321')
+    registration_page = RegistrationPage()
 
-    # дата рождения, год, месяц, день
-    browser.element('#dateOfBirthInput').click()
-    browser.element('select[class^=react-datepicker__year]').send_keys('1989')
-    browser.element('.react-datepicker__month-select').send_keys('January')
-    browser.element('[aria-label= "Choose Monday, January 2nd, 1989"]').click()
+    registration_page.open()
 
-    # предметы, хобби, картинка, адрес
-    browser.element('#subjectsInput').send_keys('English')
-    browser.all('[id^=react-select][id*=option]').element_by(have.exact_text('English')).click()
-    browser.element('[id="hobbies-checkbox-2"]+label').perform(command.js.scroll_into_view).click()
-    browser.element('#uploadPicture').set_value(
-        os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir, 'resources/image.png')))
-    browser.element('[id=currentAddress]').should(be.blank).type('Kazakhstan')
+    registration_page.fill_first_name("Elena")
+    registration_page.fill_last_name("Pirogova")
+    registration_page.fill_email('123@123.ru')
+    registration_page.choose_gender()
+    registration_page.fill_phone('8987654321')
+    registration_page.choose_birthday_date()
+    registration_page.choose_year_of_birth('1989')
+    registration_page.choose_month_of_birth('January')
+    registration_page.choose_day_of_birth('2')
+    registration_page.choose_subjects('English')
+    registration_page.choose_hobby_and_scroll()
+    registration_page.uploadpicture('image.png')
+    registration_page.fill_address('Kazakhstan')
+
 
     # штат, город, submit
-    browser.element('#state').perform(command.js.scroll_into_view).click().all(
-        '[id^=react-select][id*=option]').element_by(have.exact_text('NCR')).click()
-    browser.element('#city').click()
-    browser.element('[id="react-select-4-option-0"]').click()
-    browser.element('#submit').click()
+    # browser.element('#state').perform(command.js.scroll_into_view).click().all(
+    #     '[id^=react-select][id*=option]').element_by(have.exact_text('NCR')).click()
+    # browser.element('#city').click()
+    # browser.element('[id="react-select-4-option-0"]').click()
+    # browser.element('#submit').click()
 
     # проверяем успешность регистрации
     browser.element('.table').all('td').should(have.texts(
